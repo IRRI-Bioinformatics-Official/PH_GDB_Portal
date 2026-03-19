@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      DB_NAME: ci_test_db
+      DB_USER: ci_test_user
+      DB_PASSWORD: ci_test_pass
+      DB_HOST: db
+      DB_PORT: 5432
+      DRUPAL_HASH_SALT: ci_test_hash_salt
+      DRUPAL_SITE_NAME: CI_Test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create .env for CI
+        run: |
+          echo "DB_NAME=$DB_NAME" >> .env
+          echo "DB_USER=$DB_USER" >> .env
+          echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+          echo "DB_HOST=$DB_HOST" >> .env
+          echo "DB_PORT=$DB_PORT" >> .env
+          echo "DRUPAL_HASH_SALT=$DRUPAL_HASH_SALT" >> .env
+          echo "DRUPAL_SITE_NAME=$DRUPAL_SITE_NAME" >> .env
+
+      - name: Build Docker image
+        run: docker compose build
+
+      - name: Start containers
+        run: docker compose up -d
+
+      - name: Wait for DB to be healthy
+        run: |
+          echo "Waiting for database..."
+          sleep 20
+
+      - name: Check containers are running
+        run: docker compose ps
+
+      - name: Verify web container is up
+        run: docker compose ps | grep "1k1_portal_web"
+
+      - name: Verify DB container is up
+        run: docker compose ps | grep "1k1_portal_db"
+
+      - name: Verify Drupal responds
+        run: |
+          docker compose exec -T web curl -s -o /dev/null -w "%{http_code}" http://localhost | grep -E "200|302"
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
