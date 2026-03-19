@@ -1,6 +1,6 @@
 # ============================================================
 # 1k1_portal — docker-compose
-# Services: web (Drupal/Tripal/Apache), db (PostgreSQL)
+# Services: web (Drupal/Tripal/Apache), db (PostgreSQL), nginx
 # Usage:
 #   cp .env.example .env        # fill in your values
 #   docker compose up -d --build
@@ -15,19 +15,19 @@ services:
       dockerfile: Dockerfile
     container_name: 1k1_portal_web
     restart: unless-stopped
-    ports:
-      - "8085:80"          # local dev: http://localhost:8080
+    expose:
+      - "80"
     environment:
       DRUPAL_DB_HOST: db
       DRUPAL_DB_PORT: 5432
-      DRUPAL_DB_NAME: ${DB_NAME}
-      DRUPAL_DB_USER: ${DB_USER}
-      DRUPAL_DB_PASSWORD: ${DB_PASSWORD}
+      DRUPAL_DB_NAME: ${TripalDB_NAME}
+      DRUPAL_DB_USER: ${TripalDB_USER}
+      DRUPAL_DB_PASSWORD: ${TripalDB_PASSWORD}
       DRUPAL_HASH_SALT: ${DRUPAL_HASH_SALT}
     volumes:
       - drupal_files:/opt/drupal/web/sites/default/files
       - drupal_config:/opt/drupal/config/sync
-      - ./web/sites/default/settings.php:/opt/drupal/web/sites/default/settings.php
+      - ./web/sites/default/settings.php:/opt/drupal/web/sites/default/settings.php:ro
       - ./web/themes:/opt/drupal/web/themes
     depends_on:
       db:
@@ -41,16 +41,32 @@ services:
     container_name: 1k1_portal_db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${TripalDB_NAME}
+      POSTGRES_USER: ${TripalDB_USER}
+      POSTGRES_PASSWORD: ${TripalDB_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U ${TripalDB_USER} -d ${TripalDB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - portal_net
+
+  # ── Nginx reverse proxy ──────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: 1k1_portal_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - web
     networks:
       - portal_net
 
