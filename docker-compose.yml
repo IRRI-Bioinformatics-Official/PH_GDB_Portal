@@ -1,0 +1,65 @@
+# ============================================================
+# 1k1_portal — docker-compose
+# Services: web (Drupal/Tripal/Apache), db (PostgreSQL)
+# Usage:
+#   cp .env.example .env        # fill in your values
+#   docker compose up -d --build
+# ============================================================
+
+services:
+
+  # ── Drupal + Tripal (Apache) ────────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 1k1_portal_web
+    restart: unless-stopped
+    ports:
+      - "8085:80"          # local dev: http://localhost:8080
+    environment:
+      DRUPAL_DB_HOST: db
+      DRUPAL_DB_PORT: 5432
+      DRUPAL_DB_NAME: ${DB_NAME}
+      DRUPAL_DB_USER: ${DB_USER}
+      DRUPAL_DB_PASSWORD: ${DB_PASSWORD}
+      DRUPAL_HASH_SALT: ${DRUPAL_HASH_SALT}
+    volumes:
+      - drupal_files:/var/www/html/sites/default/files
+      - drupal_config:/opt/drupal/config/sync
+      - ./web/sites/default/settings.php:/var/www/html/sites/default/settings.php
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - portal_net
+
+  # ── PostgreSQL ───────────────────────────────────────────────
+  db:
+    image: postgres:15-alpine
+    container_name: 1k1_portal_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - portal_net
+
+# ── Named volumes ─────────────────────────────────────────────
+volumes:
+  db_data:
+  drupal_files:
+  drupal_config:
+
+# ── Network ───────────────────────────────────────────────────
+networks:
+  portal_net:
+    driver: bridge
