@@ -17,6 +17,7 @@ $settings['hash_salt'] = getenv('DRUPAL_HASH_SALT');
 $settings['trusted_host_patterns'] = [
   '^localhost$',
   '^127\.0\.0\.1$',
+  '^brs-snpseek\.duckdns\.org$',
 ];
 
 $settings['file_public_path']  = 'sites/default/files';
