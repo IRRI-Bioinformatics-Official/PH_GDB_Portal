@@ -12,8 +12,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Pull latest code
-        run: git pull origin main
+      - name: Copy .env from server
+        run: |
+          cp /home/ec2-user/.env.phgdb .env || echo "No .env override found, using existing"
 
       - name: Build and restart containers
         run: docker compose up -d --build --remove-orphans
