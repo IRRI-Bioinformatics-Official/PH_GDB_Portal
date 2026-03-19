@@ -13,23 +13,21 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Copy .env from server
-        run: |
-          cp /home/ec2-user/.env.phgdb .env || echo "No .env override found, using existing"
+        run: cp /home/ec2-user/.env.phgdb .env || true
 
       - name: Build and restart containers
         run: docker compose up -d --build --remove-orphans
 
       - name: Wait for containers
-        run: sleep 10
+        run: sleep 15
 
-      - name: Run Drupal updates
-        run: docker compose exec -T web /opt/drupal/vendor/bin/drush updatedb --yes
-
-      - name: Import config
-        run: docker compose exec -T web /opt/drupal/vendor/bin/drush config:import --yes
-
-      - name: Rebuild cache
-        run: docker compose exec -T web /opt/drupal/vendor/bin/drush cache:rebuild
+      - name: Run Drupal updates if installed
+        run: |
+          docker compose exec -T web /opt/drupal/vendor/bin/drush status --field=bootstrap | grep -q "Successful" \
+            && docker compose exec -T web /opt/drupal/vendor/bin/drush updatedb --yes \
+            && docker compose exec -T web /opt/drupal/vendor/bin/drush config:import --yes \
+            && docker compose exec -T web /opt/drupal/vendor/bin/drush cache:rebuild \
+            || echo "Drupal not installed yet — skipping updates."
 
       - name: Done
         run: echo "Deploy complete."
