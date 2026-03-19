@@ -20,6 +20,8 @@ $settings['trusted_host_patterns'] = [
   '^brs-snpseek\.duckdns\.org$',
 ];
 
+$settings['base_url'] = 'https://brs-snpseek.duckdns.org/ph_gdb';
+
 $settings['file_public_path']  = 'sites/default/files';
 $settings['config_sync_directory'] = '../config/sync';
 
