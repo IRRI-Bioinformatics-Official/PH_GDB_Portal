@@ -25,9 +25,10 @@ services:
       DRUPAL_DB_PASSWORD: ${DB_PASSWORD}
       DRUPAL_HASH_SALT: ${DRUPAL_HASH_SALT}
     volumes:
-      - drupal_files:/var/www/html/sites/default/files
+      - drupal_files:/opt/drupal/web/sites/default/files
       - drupal_config:/opt/drupal/config/sync
-      - ./web/sites/default/settings.php:/var/www/html/sites/default/settings.php
+      - ./web/sites/default/settings.php:/opt/drupal/web/sites/default/settings.php
+      - ./web/themes:/opt/drupal/web/themes
     depends_on:
       db:
         condition: service_healthy
