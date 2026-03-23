@@ -1,13 +1,17 @@
 <section class="hero">
-  <div class="hero-accent"></div>
+  <div class="hero-bar"></div>
   <div class="hero-right"></div>
-  <div class="hero-dots"></div>
+  <div class="hero-right-inner">
+    <div class="genome-box">
+      <div class="genome-grid" id="genome-grid"></div>
+      <div class="genome-label">Variant density map</div>
+    </div>
+  </div>
   <div class="hero-content">
     <div class="hero-tag">
-      <div class="hero-tag-dot"></div>
       <span>University of the Philippines System</span>
     </div>
-    <h1>1001 Philippine<br><em>Rice Genomes</em></h1>
+    <h1>1001 Philippine<br><em>Rice</em> <strong>Genomes</strong></h1>
     <p class="hero-sub">
       A comprehensive genomics database cataloguing the genetic diversity of
       Philippine rice varieties — empowering breeding, conservation, and
@@ -20,29 +24,27 @@
   </div>
 </section>
 
-<section class="stats-section">
-  <div class="stats-inner">
-    <div class="stat">
-      <div class="stat-num">1,001</div>
-      <div class="stat-label">Rice Genomes Sequenced</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">42<span class="stat-unit">M+</span></div>
-      <div class="stat-label">SNP Variants Catalogued</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">18</div>
-      <div class="stat-label">Philippine Provinces</div>
-    </div>
-    <div class="stat">
-      <div class="stat-num">12</div>
-      <div class="stat-label">Partner Institutions</div>
-    </div>
+<div class="stats-section">
+  <div class="stat-maroon">
+    <div class="stat-num-light">1,001</div>
+    <div class="stat-label-light">Rice Genomes Sequenced</div>
   </div>
-</section>
+  <div class="stat-gold">
+    <div class="stat-num-dark">42<span class="stat-unit-dark">M+</span></div>
+    <div class="stat-label-dark">SNP Variants Catalogued</div>
+  </div>
+  <div class="stat-green">
+    <div class="stat-num-light">18</div>
+    <div class="stat-label-light">Philippine Provinces</div>
+  </div>
+  <div class="stat-white">
+    <div class="stat-num-dark">12</div>
+    <div class="stat-label-dark">Partner Institutions</div>
+  </div>
+</div>
 
-<section class="about-section">
-  <div class="about-grid">
+<section style="padding:72px 0">
+  <div class="about-section">
     <div>
       <div class="about-label">About the Portal</div>
       <h2>Unlocking the genetic heritage of Philippine rice</h2>
@@ -58,9 +60,19 @@
         climate adaptation, and conservation of indigenous rice germplasm.
       </p>
     </div>
-    <div class="about-visual">
-      <div class="genome-grid" id="genome-grid"></div>
-      <div class="about-visual-label">Genome variant density visualisation</div>
+    <div class="about-cards">
+      <div class="acard">
+        <h4>Genomics Data Repository</h4>
+        <p>Whole-genome sequences, SNP variants, and structural annotations for 1,001 rice accessions.</p>
+      </div>
+      <div class="acard green">
+        <h4>Bioinformatics Tools</h4>
+        <p>BLAST search, JBrowse genome browser, and genotype search microservice integration.</p>
+      </div>
+      <div class="acard gold">
+        <h4>Open Access</h4>
+        <p>Freely available data supporting breeding programs, conservation, and food security research.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -78,20 +90,20 @@
       <div class="news-card">
         <div class="news-date">March 2026</div>
         <h3>Portal launch: first 200 genomes now publicly available</h3>
-        <p>The first batch of sequenced Philippine rice genomes is now accessible through the data browser and BLAST search tools.</p>
+        <p>The first batch of sequenced Philippine rice genomes is now accessible through the data browser.</p>
         <span class="news-tag">Announcement</span>
       </div>
-      <div class="news-card">
-        <div class="news-date">February 2026</div>
-        <h3>New data loader for VCF variant files integrated</h3>
-        <p>Tripal's VCF loader has been configured to support bulk import of SNP variant data from field collections.</p>
-        <span class="news-tag">Technical</span>
+      <div class="news-card green">
+        <div class="news-date green">February 2026</div>
+        <h3>New VCF data loader for SNP variant files integrated</h3>
+        <p>Tripal's VCF loader now supports bulk import of SNP variant data from field collections.</p>
+        <span class="news-tag green">Technical</span>
       </div>
-      <div class="news-card">
-        <div class="news-date">January 2026</div>
+      <div class="news-card gold">
+        <div class="news-date gold">January 2026</div>
         <h3>Partnership expanded with three new provincial LGUs</h3>
-        <p>Collection efforts now extend to Ifugao, Mountain Province, and Palawan — home to rare heirloom rice varieties.</p>
-        <span class="news-tag">Partnership</span>
+        <p>Collection efforts now extend to Ifugao, Mountain Province, and Palawan.</p>
+        <span class="news-tag gold">Partnership</span>
       </div>
     </div>
   </div>
