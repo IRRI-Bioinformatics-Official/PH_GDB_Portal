@@ -1,0 +1,36 @@
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, x64]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy .env from server
+        run: cp /home/ec2-user/.env.phgdb .env || true
+
+      - name: Build and restart containers
+        run: docker compose up -d --build --remove-orphans
+
+      - name: Wait for containers
+        run: sleep 15
+
+      - name: Run Drupal updates if installed
+        run: |
+          docker compose exec -T web /opt/drupal/vendor/bin/drush status --field=bootstrap | grep -q "Successful" \
+            && docker compose exec -T web /opt/drupal/vendor/bin/drush updatedb --yes \
+            && docker compose exec -T web /opt/drupal/vendor/bin/drush en tripal --yes \
+            && docker compose exec -T web /opt/drupal/vendor/bin/drush theme:enable phrice --yes \
+            && docker compose exec -T web /opt/drupal/vendor/bin/drush config:set system.theme default phrice --yes \
+            && docker compose exec -T web /opt/drupal/vendor/bin/drush config:import --yes \
+            && docker compose exec -T web /opt/drupal/vendor/bin/drush cache:rebuild \
+            || echo "Drupal not installed yet — skipping updates."
+
+      - name: Done
+        run: echo "Deploy complete."
