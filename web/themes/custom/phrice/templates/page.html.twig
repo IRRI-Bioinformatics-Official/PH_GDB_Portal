@@ -18,7 +18,14 @@
     </div>
     <nav class="main-nav">
       <a href="{{ path('<front>') }}">Home</a>
-      <a href="/ph_gdb/data">Data</a>
+      <div class="nav-dropdown">
+        <a href="/ph_gdb/data" class="nav-dropdown-toggle">Data ▾</a>
+        <div class="nav-dropdown-menu">
+          <a href="/ph_gdb/data/genotype-viewer">Genotype Viewer</a>
+          <a href="/ph_gdb/data/jbrowse">JBrowse</a>
+          <a href="/ph_gdb/data/jbrowse2">JBrowse2</a>
+        </div>
+      </div>
       <a href="/ph_gdb/tools">Tools</a>
       <a href="/ph_gdb/publications">Publications</a>
       <a href="/ph_gdb/about">About</a>
