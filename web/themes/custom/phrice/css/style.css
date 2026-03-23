@@ -34,9 +34,9 @@ nav.main-nav a:hover { color: var(--gold-light); }
 /* ── Hero ────────────────────────────────────────────────────── */
 .hero { background: var(--off); min-height: 520px; display: flex; align-items: center; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
 .hero-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: linear-gradient(to bottom, var(--maroon) 50%, var(--green) 50%); }
-.hero-right { position: absolute; right: 0; top: 0; bottom: 0; width: 42%; background: var(--white); clip-path: polygon(6% 0, 100% 0, 100% 100%, 0% 100%); }
-.hero-dots { position: absolute; right: 0; top: 0; bottom: 0; width: 42%; background-image: radial-gradient(circle, rgba(123,17,19,0.08) 1px, transparent 1px); background-size: 24px 24px; clip-path: polygon(6% 0, 100% 0, 100% 100%, 0% 100%); }
-.hero-img { position: absolute; right: 0; top: 0; bottom: 0; width: 42%; display: flex; align-items: center; justify-content: center; clip-path: polygon(6% 0, 100% 0, 100% 100%, 0% 100%); }
+.hero-right { position: absolute; right: 0; top: 0; bottom: 0; width: 42%; background: var(--white); }
+.hero-dots { position: absolute; right: 0; top: 0; bottom: 0; width: 42%; background-image: radial-gradient(circle, rgba(123,17,19,0.08) 1px, transparent 1px); background-size: 24px 24px; }
+.hero-img { position: absolute; right: 0; top: 0; bottom: 0; width: 42%; display: flex; align-items: center; justify-content: center; }
 .genome-box { background: var(--maroon-dark); border-radius: 8px; padding: 28px; width: 240px; }
 .genome-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
 .genome-cell { aspect-ratio: 1; border-radius: 2px; background: var(--maroon-light); opacity: 0.35; transition: all 0.3s; }

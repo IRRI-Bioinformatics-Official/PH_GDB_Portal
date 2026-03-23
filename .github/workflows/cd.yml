@@ -15,6 +15,12 @@ jobs:
       - name: Copy .env from server
         run: cp /home/ec2-user/.env.phgdb .env || true
 
+      - name: Sync latest code
+        run: |
+          git config pull.rebase false
+          git fetch origin main
+          git reset --hard origin/main
+
       - name: Build and restart containers
         run: docker compose up -d --build --remove-orphans
 
