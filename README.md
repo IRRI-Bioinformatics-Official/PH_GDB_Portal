@@ -2,7 +2,7 @@
 
 A Tripal-powered bioinformatics portal for the 1001 Philippine Rice Genome initiative — cataloguing the genetic diversity of Philippine rice varieties to support breeding, conservation, and food security research.
 
-**Live URL:** https://brs-snpseek.duckdns.org/ph_gdb/  
+
 **Built with:** Drupal 10 + Tripal + PostgreSQL + Docker  
 **Maintained by:** IRRI Bioinformatics Unit  
 **Partners:** University of the Philippines System, DA-PhilRice, UPLB
