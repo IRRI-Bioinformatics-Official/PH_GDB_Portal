@@ -1,0 +1,20 @@
+uuid: 9bc888b6-edbc-4d60-b83a-8efb61136a1e
+langcode: en
+status: true
+dependencies:
+  theme:
+    - phrice
+_core:
+  default_config_hash: 6aOgWsNTXjqrDm98TXSAjP6qd2nCijD1xw45MrnbK-Y
+id: phrice_page_title
+theme: phrice
+region: header
+weight: -5
+provider: null
+plugin: page_title_block
+settings:
+  id: page_title_block
+  label: 'Page title'
+  label_display: '0'
+  provider: core
+visibility: {  }

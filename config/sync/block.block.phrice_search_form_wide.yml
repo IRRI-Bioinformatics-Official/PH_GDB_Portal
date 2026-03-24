@@ -1,0 +1,23 @@
+uuid: d2262dce-75a8-43b0-99d8-9fdfab3250df
+langcode: en
+status: true
+dependencies:
+  module:
+    - search
+  theme:
+    - phrice
+_core:
+  default_config_hash: imMyHD6LYci0gtXq56qr9ZKGHzbEG9uFydrN5EhKtSU
+id: phrice_search_form_wide
+theme: phrice
+region: header
+weight: -5
+provider: null
+plugin: search_form_block
+settings:
+  id: search_form_block
+  label: 'Search form (wide)'
+  label_display: '0'
+  provider: search
+  page_id: ''
+visibility: {  }

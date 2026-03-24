@@ -1,0 +1,22 @@
+uuid: 4dff387d-80bb-495d-9b60-6914337acfe3
+langcode: en
+status: true
+dependencies:
+  module:
+    - help
+  theme:
+    - phrice
+_core:
+  default_config_hash: VfPFqqxfkomud5CO8DUijw85QIl9GIxh_nIxLOYESxg
+id: phrice_help
+theme: phrice
+region: header
+weight: 0
+provider: null
+plugin: help_block
+settings:
+  id: help_block
+  label: Help
+  label_display: '0'
+  provider: help
+visibility: {  }

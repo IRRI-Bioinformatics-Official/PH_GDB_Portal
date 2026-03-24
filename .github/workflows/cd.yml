@@ -35,6 +35,7 @@ jobs:
             && docker compose exec -T web /opt/drupal/vendor/bin/drush theme:enable phrice --yes \
             && docker compose exec -T web /opt/drupal/vendor/bin/drush config:set system.theme default phrice --yes \
             && docker compose exec -T web /opt/drupal/vendor/bin/drush config:import --yes \
+            && bash scripts/create-pages.sh \
             && docker compose exec -T web /opt/drupal/vendor/bin/drush cache:rebuild \
             || echo "Drupal not installed yet — skipping updates."
 

@@ -1,0 +1,22 @@
+uuid: 88f95e72-e89a-4be9-812f-f16a2aae4c0f
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - phrice
+_core:
+  default_config_hash: erQSEZF2XUjNmgTl0uNRBzmg18ZGXwUcw2FhApoeuHk
+id: phrice_content
+theme: phrice
+region: content
+weight: 0
+provider: null
+plugin: system_main_block
+settings:
+  id: system_main_block
+  label: 'Main page content'
+  label_display: '0'
+  provider: system
+visibility: {  }

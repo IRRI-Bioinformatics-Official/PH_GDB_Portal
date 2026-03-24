@@ -1,0 +1,25 @@
+uuid: eee1bdb3-2481-4e6c-9bd1-cb59ea9a979f
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - phrice
+_core:
+  default_config_hash: n_nlgjggHVfQt2H__zvLOKB2YtjPDbQ5tHijF9LE1aM
+id: phrice_site_branding
+theme: phrice
+region: header
+weight: 0
+provider: null
+plugin: system_branding_block
+settings:
+  id: system_branding_block
+  label: 'Site branding'
+  label_display: '0'
+  provider: system
+  use_site_logo: true
+  use_site_name: true
+  use_site_slogan: false
+visibility: {  }

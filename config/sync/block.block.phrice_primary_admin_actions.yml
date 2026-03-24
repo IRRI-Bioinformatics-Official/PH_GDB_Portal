@@ -1,0 +1,20 @@
+uuid: f615a57e-18d9-47f8-9d35-5681b98851f5
+langcode: en
+status: true
+dependencies:
+  theme:
+    - phrice
+_core:
+  default_config_hash: Q9_2whdOj1YIomfvsIfopROW4FT_X5pY0DjdOiOaQ5U
+id: phrice_primary_admin_actions
+theme: phrice
+region: header
+weight: -5
+provider: null
+plugin: local_actions_block
+settings:
+  id: local_actions_block
+  label: 'Primary admin actions'
+  label_display: '0'
+  provider: core
+visibility: {  }

@@ -1,0 +1,22 @@
+uuid: e860ff48-0e2d-49ce-a2a2-642926750a85
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - phrice
+_core:
+  default_config_hash: eYL19CLDyinGTWYQfBD1DswWzglEotE_kHnHx3AxTXM
+id: phrice_powered
+theme: phrice
+region: header
+weight: 0
+provider: null
+plugin: system_powered_by_block
+settings:
+  id: system_powered_by_block
+  label: 'Powered by Drupal'
+  label_display: '0'
+  provider: system
+visibility: {  }
