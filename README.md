@@ -359,8 +359,19 @@ git push origin main
 
 ## Notes
 
-- The portal runs on port `8085` internally, proxied by the server's existing Nginx at `/ph_gdb/`
-- Drupal cache must be rebuilt after any theme or config changes: `drush cache:rebuild`
+- **Reverse Proxy Support:** The portal runs on port `8085` internally, proxied by the server's existing Nginx at `/ph_gdb/`. To ensure correct URL generation and login functionality, the Nginx location block must pass the correct headers:
+  ```nginx
+  location /ph_gdb/ {
+      proxy_pass http://localhost:8085/;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-Prefix /ph_gdb;
+  }
+  ```
+- **Login Issues:** If login redirects fail, ensure `X-Forwarded-Prefix` is set correctly in Nginx as shown above. The `settings.php` has been updated to trust these headers.
+- **Cache:** Drupal cache must be rebuilt after any theme or config changes: `drush cache:rebuild`
 - The self-hosted runner `.env` file is stored at `/home/ec2-user/.env.phgdb` on the production server and copied by the CD workflow at deploy time
 - Docker Buildx v0.17.1+ is required on the production server
 - WSL users: always work inside the Linux filesystem (`~/projects/`) not `/mnt/c/` — Docker volumes and file permissions behave incorrectly on the Windows filesystem

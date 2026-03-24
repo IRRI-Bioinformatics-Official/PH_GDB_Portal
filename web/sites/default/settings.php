@@ -20,6 +20,29 @@ $settings['trusted_host_patterns'] = [
   '^brs-snpseek\.duckdns\.org$',
 ];
 
+/**
+ * Reverse proxy settings.
+ * Required for correct URL generation behind Nginx.
+ */
+$settings['reverse_proxy'] = TRUE;
+// In Docker environments, the proxy is often the gateway or a known internal IP.
+// Using $_SERVER['REMOTE_ADDR'] as a trusted proxy is common in these setups.
+$settings['reverse_proxy_addresses'] = [$_SERVER['REMOTE_ADDR']];
+
+// Handle HTTPS termination at the proxy.
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+  $_SERVER['HTTPS'] = 'on';
+}
+
+// Handle subdirectory if the proxy strips the prefix (X-Forwarded-Prefix).
+// This ensures Drupal knows it is served from /ph_gdb.
+if (isset($_SERVER['HTTP_X_FORWARDED_PREFIX'])) {
+  $prefix = $_SERVER['HTTP_X_FORWARDED_PREFIX'];
+  // Force the base path in Symfony Request.
+  $_SERVER['SCRIPT_NAME'] = $prefix . $_SERVER['SCRIPT_NAME'];
+  $_SERVER['REQUEST_URI'] = $prefix . $_SERVER['REQUEST_URI'];
+}
+
 $settings['file_public_path']  = 'sites/default/files';
 $settings['config_sync_directory'] = '../config/sync';
 

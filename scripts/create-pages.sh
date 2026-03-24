@@ -17,12 +17,17 @@ docker compose exec -T web $DRUSH php:eval "
 // ── Landing page ─────────────────────────────────────────────
 \$existing = \Drupal\node\Entity\Node::load(1);
 if (!\$existing) {
+  \$base_path = \Drupal::request()->getBasePath();
+  \$base_path = rtrim(\$base_path, '/') . '/';
+  \$body = file_get_contents('/opt/drupal/web/themes/custom/phrice/templates/node--landing-page.html.twig');
+  \$body = str_replace('{{ base_path }}', \$base_path, \$body);
+
   \$node = \Drupal\node\Entity\Node::create([
     'type' => 'page',
     'title' => 'Welcome to the 1001 Philippine Rice Genome Portal',
     'status' => 1,
     'body' => [
-      'value' => file_get_contents('/opt/drupal/web/themes/custom/phrice/templates/node--landing-page.html.twig'),
+      'value' => \$body,
       'format' => 'full_html',
     ],
   ]);
