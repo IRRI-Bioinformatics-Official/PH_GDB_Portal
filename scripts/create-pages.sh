@@ -18,6 +18,9 @@ docker compose exec -T web $DRUSH php:eval "
 \$existing = \Drupal\node\Entity\Node::load(1);
 if (!\$existing) {
   \$base_path = \Drupal::request()->getBasePath();
+  if (empty(\$base_path) && getenv('DRUPAL_BASE_PATH')) {
+    \$base_path = '/' . ltrim(getenv('DRUPAL_BASE_PATH'), '/');
+  }
   \$base_path = rtrim(\$base_path, '/') . '/';
   \$body = file_get_contents('/opt/drupal/web/themes/custom/phrice/templates/node--landing-page.html.twig');
   \$body = str_replace('{{ base_path }}', \$base_path, \$body);

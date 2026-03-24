@@ -36,8 +36,9 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
 
 // Handle subdirectory if the proxy strips the prefix (X-Forwarded-Prefix).
 // This ensures Drupal knows it is served from /ph_gdb.
-if (isset($_SERVER['HTTP_X_FORWARDED_PREFIX'])) {
-  $prefix = $_SERVER['HTTP_X_FORWARDED_PREFIX'];
+$prefix = getenv('DRUPAL_BASE_PATH') ?: (isset($_SERVER['HTTP_X_FORWARDED_PREFIX']) ? $_SERVER['HTTP_X_FORWARDED_PREFIX'] : NULL);
+if ($prefix) {
+  $prefix = '/' . ltrim($prefix, '/');
   // Force the base path in Symfony Request.
   $_SERVER['SCRIPT_NAME'] = $prefix . $_SERVER['SCRIPT_NAME'];
   $_SERVER['REQUEST_URI'] = $prefix . $_SERVER['REQUEST_URI'];

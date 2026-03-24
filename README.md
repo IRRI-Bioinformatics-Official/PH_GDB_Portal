@@ -352,6 +352,7 @@ git push origin main
 | `TripalDB_PORT` | DB port | `5432` |
 | `DRUPAL_HASH_SALT` | Drupal security salt (random 64-char string) | `openssl rand -base64 48` |
 | `DRUPAL_SITE_NAME` | Site display name | `1001 Philippine Rice Genome Portal` |
+| `DRUPAL_BASE_PATH` | Optional: Force a subdirectory base path | `/ph_gdb` |
 
 > **Never commit `.env` to version control.** Only commit `.env.example` with placeholder values.
 
