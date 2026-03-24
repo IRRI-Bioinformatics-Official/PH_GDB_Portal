@@ -2,7 +2,7 @@
 
 A Tripal-powered bioinformatics portal for the 1001 Philippine Rice Genome initiative — cataloguing the genetic diversity of Philippine rice varieties to support breeding, conservation, and food security research.
 
-
+**Live URL:** https://brs-snpseek.duckdns.org/ph_gdb/  
 **Built with:** Drupal 10 + Tripal + PostgreSQL + Docker  
 **Maintained by:** IRRI Bioinformatics Unit  
 **Partners:** University of the Philippines System, DA-PhilRice, UPLB
@@ -17,6 +17,8 @@ A Tripal-powered bioinformatics portal for the 1001 Philippine Rice Genome initi
 - [First-Time Production Install](#first-time-production-install)
 - [CI/CD Pipeline](#cicd-pipeline)
 - [Theme](#theme)
+- [Portal Pages](#portal-pages)
+- [Persisting Pages and Config](#persisting-pages-and-config)
 - [Reusing This Project](#reusing-this-project)
 - [Environment Variables](#environment-variables)
 
@@ -45,9 +47,10 @@ PH_GDB_Portal/
 │   └── workflows/
 │       ├── ci.yml              # Build check on every PR
 │       └── cd.yml              # Auto-deploy on push to main
-├── docker/
-│   └── nginx/
-│       └── nginx.conf          # Nginx reverse proxy config
+├── config/
+│   └── sync/                   # Drupal exported config (persisted in repo)
+├── scripts/
+│   └── create-pages.sh         # Creates all portal pages via Drush
 ├── web/
 │   ├── sites/
 │   │   └── default/
@@ -121,35 +124,14 @@ docker compose exec web /opt/drupal/vendor/bin/drush site:install standard \
   --yes
 ```
 
-**6. Enable Tripal and the custom theme:**
+**6. Create all portal pages:**
 ```bash
-docker compose exec web /opt/drupal/vendor/bin/drush en tripal --yes
-docker compose exec web /opt/drupal/vendor/bin/drush theme:enable phrice --yes
-docker compose exec web /opt/drupal/vendor/bin/drush config:set system.theme default phrice --yes
-docker compose exec web /opt/drupal/vendor/bin/drush cache:rebuild
+bash scripts/create-pages.sh
 ```
 
-**7. Create the landing page:**
-```bash
-docker compose exec web /opt/drupal/vendor/bin/drush php:eval "
-\$node = \Drupal\node\Entity\Node::create([
-  'type' => 'page',
-  'title' => 'Welcome to the 1001 Philippine Rice Genome Portal',
-  'status' => 1,
-  'body' => [
-    'value' => file_get_contents('/opt/drupal/web/themes/custom/phrice/templates/node--landing-page.html.twig'),
-    'format' => 'full_html',
-  ],
-]);
-\$node->save();
-echo 'Node ID: ' . \$node->id();
-"
+This script creates the landing page, Genotype Viewer, JBrowse, and JBrowse2 pages automatically. It is idempotent — safe to run multiple times.
 
-docker compose exec web /opt/drupal/vendor/bin/drush config:set system.site page.front /node/1 --yes
-docker compose exec web /opt/drupal/vendor/bin/drush cache:rebuild
-```
-
-**8. Access the portal:**  
+**7. Access the portal:**  
 Open http://localhost:8085
 
 ---
@@ -181,11 +163,8 @@ docker compose exec -T web /opt/drupal/vendor/bin/drush site:install standard \
   --account-pass=changeme_immediately \
   --yes
 
-# Enable modules and theme
-docker compose exec -T web /opt/drupal/vendor/bin/drush en tripal --yes
-docker compose exec -T web /opt/drupal/vendor/bin/drush theme:enable phrice --yes
-docker compose exec -T web /opt/drupal/vendor/bin/drush config:set system.theme default phrice --yes
-docker compose exec -T web /opt/drupal/vendor/bin/drush cache:rebuild
+# Enable modules and theme + create all pages
+bash scripts/create-pages.sh
 
 # Change admin password immediately
 docker compose exec -T web /opt/drupal/vendor/bin/drush user:password admin 'your-secure-password'
@@ -198,7 +177,9 @@ docker compose exec -T web /opt/drupal/vendor/bin/drush user:password admin 'you
 | Workflow | Trigger | Runner | What it does |
 |---|---|---|---|
 | `ci.yml` | Pull request to `main` | GitHub-hosted (`ubuntu-latest`) | Builds Docker image, starts containers, verifies health |
-| `cd.yml` | Push to `main` | Self-hosted (`BRS_tripal` runner on prod server) | Pulls latest code, rebuilds containers, runs Drush updates, rebuilds cache |
+| `cd.yml` | Push to `main` | Self-hosted (`BRS_tripal` runner on prod server) | Syncs latest code via `git reset --hard`, rebuilds containers, runs Drush updates, runs `create-pages.sh`, rebuilds cache |
+
+> The CD workflow uses `git reset --hard origin/main` to avoid divergent branch conflicts — the server workspace always matches `main` exactly.
 
 ### Setting up the self-hosted runner
 
@@ -220,24 +201,35 @@ sudo ./svc.sh install
 sudo ./svc.sh start
 ```
 
+### Docker Buildx requirement
+
+Docker Buildx v0.17.1+ is required on the production server:
+```bash
+mkdir -p ~/.docker/cli-plugins
+curl -SL https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64 \
+  -o ~/.docker/cli-plugins/docker-buildx
+chmod +x ~/.docker/cli-plugins/docker-buildx
+docker buildx install
+```
+
 ---
 
 ## Theme
 
 The custom theme is located at `web/themes/custom/phrice/`.
 
-It uses **UP (University of the Philippines) branding** — maroon and gold color palette — with IRRI and DA-PhilRice acknowledged in the footer.
+It uses **UP (University of the Philippines) branding** — maroon, gold, and green color palette — with IRRI and DA-PhilRice acknowledged in the footer. The stats strip uses Option A: dark to light maroon shades with a gold end cap.
 
 | File | Purpose |
 |---|---|
 | `phrice.info.yml` | Theme metadata and region definitions |
 | `phrice.libraries.yml` | CSS and JS asset registration |
-| `css/style.css` | All theme styles |
+| `css/style.css` | All theme styles including nav dropdown |
 | `js/main.js` | Genome grid animation |
-| `templates/page.html.twig` | Main page layout (nav, footer) |
+| `templates/page.html.twig` | Main page layout — nav with Data dropdown, footer |
 | `templates/node--landing-page.html.twig` | Landing page sections (hero, stats, about, news) |
 
-To update the landing page content after changes to the template:
+To update the landing page content after template changes:
 ```bash
 docker compose exec -T web /opt/drupal/vendor/bin/drush php:eval "
 \$node = \Drupal\node\Entity\Node::load(1);
@@ -248,6 +240,59 @@ docker compose exec -T web /opt/drupal/vendor/bin/drush php:eval "
 \$node->save();
 "
 docker compose exec -T web /opt/drupal/vendor/bin/drush cache:rebuild
+```
+
+---
+
+## Portal Pages
+
+| Page | URL | Description |
+|---|---|---|
+| Landing page | `/ph_gdb/` | Hero, stats, about, news sections |
+| Genotype Viewer | `/ph_gdb/data/genotype-viewer` | Embedded SNP-Seek genotype search microservice |
+| JBrowse | `/ph_gdb/data/jbrowse` | JBrowse 1 genome browser (rice reference + MSU7 tracks) |
+| JBrowse2 | `/ph_gdb/data/jbrowse2` | JBrowse 2 next-generation genome browser |
+
+### Embedded tools
+
+| Tool | Source URL |
+|---|---|
+| Genotype Viewer | `http://snpseekv3.duckdns.org/1k1/1k1_prototype.zul` |
+| JBrowse | `https://brs-snpseek.duckdns.org/jbrowse/?loc=chr01:2902..10816&tracks=DNA,msu7gff` |
+| JBrowse2 | `https://brs-snpseek.duckdns.org/jbrowse2/?session=local-Okuh4ZhqgE-BsamEZOmCK` |
+
+> Note: The Genotype Viewer uses `http://` — if the portal is on `https://` the browser may block the iframe due to mixed content. Configure Nginx to proxy it if needed.
+
+### Admin access
+
+```
+https://brs-snpseek.duckdns.org/ph_gdb/user/login
+```
+Username: `admin` — reset password via:
+```bash
+docker compose exec -T web /opt/drupal/vendor/bin/drush user:password admin 'your-new-password'
+```
+
+---
+
+## Persisting Pages and Config
+
+Portal pages are created in the Drupal database and would be lost on a fresh install. Two mechanisms keep them safe:
+
+### 1. `scripts/create-pages.sh`
+A Drush script that recreates all pages idempotently (checks before creating). It is called automatically by the CD workflow on every deploy and can be run manually:
+```bash
+bash scripts/create-pages.sh
+```
+
+### 2. `config/sync/`
+Drupal configuration exported to the repo. This persists theme settings, content type config, URL aliases, and module settings. To re-export after making config changes in the UI:
+```bash
+docker compose exec -T web /opt/drupal/vendor/bin/drush config:export --yes
+docker cp 1k1_portal_web:/opt/drupal/config/sync/. config/sync/
+git add config/
+git commit -m "chore: export updated Drupal config"
+git push origin main
 ```
 
 ---
@@ -318,3 +363,6 @@ git push origin main
 - Drupal cache must be rebuilt after any theme or config changes: `drush cache:rebuild`
 - The self-hosted runner `.env` file is stored at `/home/ec2-user/.env.phgdb` on the production server and copied by the CD workflow at deploy time
 - Docker Buildx v0.17.1+ is required on the production server
+- WSL users: always work inside the Linux filesystem (`~/projects/`) not `/mnt/c/` — Docker volumes and file permissions behave incorrectly on the Windows filesystem
+- If pushing to GitHub fails from WSL on a corporate network, push directly from the production server which has unrestricted internet access
+- The `sub_filter` directives in Nginx rewrite asset paths for the `/ph_gdb/` subdirectory — avoid using `clip-path` in CSS as it may be rewritten incorrectly
