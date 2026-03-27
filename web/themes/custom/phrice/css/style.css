@@ -97,6 +97,12 @@ nav.main-nav a:hover { color: var(--gold-light); }
 .news-card p { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
 .news-tag { display: inline-block; margin-top: 12px; font-size: 10px; color: var(--maroon); background: rgba(123,17,19,0.07); border-radius: 2px; padding: 3px 8px; font-weight: 600; }
 
+/* ── Placeholder notice ──────────────────────────────────────── */
+.placeholder-notice { background: #fffbe6; border: 2px dashed var(--gold); border-radius: 6px; padding: 20px 24px; margin: 0 0 36px; display: flex; gap: 14px; align-items: flex-start; }
+.placeholder-notice .placeholder-icon { font-size: 22px; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+.placeholder-notice strong { display: block; font-size: 14px; color: #7a5c00; margin-bottom: 4px; }
+.placeholder-notice p { font-size: 13px; color: #9a7200; margin: 0; line-height: 1.6; }
+
 /* ── Footer ──────────────────────────────────────────────────── */
 .site-footer { background: var(--maroon-dark); padding: 28px 48px; display: flex; align-items: center; justify-content: space-between; border-top: 3px solid var(--gold); }
 .footer-left { color: rgba(255,255,255,0.45); font-size: 12px; line-height: 1.8; }

@@ -73,6 +73,59 @@ echo (empty(\$jb2_nodes) ? 'Creating' : 'Updating') . ' JBrowse2...' . PHP_EOL;
 \$n3->set('path', ['alias' => '/data/jbrowse2']);
 \$n3->status = 1;
 \$n3->save();
+
+
+// ── Data index ────────────────────────────────────────────────
+\$data_nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['title' => 'Data']);
+\$nd = !empty(\$data_nodes) ? reset(\$data_nodes) : \Drupal\node\Entity\Node::create(['type' => 'page', 'title' => 'Data']);
+
+echo (empty(\$data_nodes) ? 'Creating' : 'Updating') . ' Data index...' . PHP_EOL;
+\$nd->set('body', [
+  'value' => '<div class=\"page-hero\"><div class=\"page-hero-inner\"><div class=\"page-hero-tag\"><span>Data</span></div><h1>Data &amp; Datasets</h1><p>Access genomic datasets, SNP variant calls, and interactive browsers for the 1,001 Philippine rice accessions.</p></div></div><div class=\"page-content\"><div class=\"placeholder-notice\"><div class=\"placeholder-icon\">⚠</div><div><strong>Placeholder content — this page will be updated soon.</strong><p>The content on this page is temporary. Full dataset documentation and download links are currently being prepared.</p></div></div><div class=\"info-grid\"><div class=\"info-card\"><h3>Genotype Viewer</h3><p>Search and compare SNP variants across all 1,001 accessions using the SNP-Seek genotype interface.</p></div><div class=\"info-card green\"><h3>JBrowse</h3><p>Explore the IRGSP-1.0 reference genome with RAP-DB and MSU7 annotations in JBrowse 1.</p></div><div class=\"info-card gold\"><h3>JBrowse2</h3><p>Next-generation genome browser with multi-genome comparison, SV tracks, and plugin support.</p></div></div><h2>Available data resources</h2><p>The portal provides access to the following datasets generated from whole-genome sequencing of 1,001 Philippine rice accessions collected across 18 provinces.</p><ul><li><a href=\"/ph_gdb/data/genotype-viewer\">Genotype Viewer</a> — Interactive SNP search across all accessions</li><li><a href=\"/ph_gdb/data/jbrowse\">JBrowse Genome Browser</a> — Reference genome and annotation tracks</li><li><a href=\"/ph_gdb/data/jbrowse2\">JBrowse2 Genome Browser</a> — Multi-genome and structural variant views</li></ul><h2>Data access &amp; downloads</h2><p>Bulk dataset downloads, VCF files, and API access documentation are currently being finalised and will be made available here.</p><span class=\"badge\">VCF</span><span class=\"badge green\">FASTA</span><span class=\"badge gold\">Open Access</span></div>',
+  'format' => 'full_html',
+]);
+\$nd->set('path', ['alias' => '/data']);
+\$nd->status = 1;
+\$nd->save();
+
+// ── Tools ─────────────────────────────────────────────────────
+\$tools_nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['title' => 'Tools']);
+\$nt = !empty(\$tools_nodes) ? reset(\$tools_nodes) : \Drupal\node\Entity\Node::create(['type' => 'page', 'title' => 'Tools']);
+
+echo (empty(\$tools_nodes) ? 'Creating' : 'Updating') . ' Tools...' . PHP_EOL;
+\$nt->set('body', [
+  'value' => '<div class=\"page-hero\"><div class=\"page-hero-inner\"><div class=\"page-hero-tag\"><span>Tools</span></div><h1>Bioinformatics Tools</h1><p>Analytical and visualisation tools for exploring the genetic diversity of Philippine rice varieties.</p></div></div><div class=\"page-content\"><div class=\"placeholder-notice\"><div class=\"placeholder-icon\">⚠</div><div><strong>Placeholder content — this page will be updated soon.</strong><p>The tools listed below are planned or under active development. Documentation and links will be added as each tool becomes available.</p></div></div><div class=\"info-grid\"><div class=\"info-card\"><h3>BLAST Search</h3><p>Sequence similarity search against the Philippine rice genome and annotated gene models.</p></div><div class=\"info-card green\"><h3>Population Structure</h3><p>Visualise admixture coefficients, PCA plots, and phylogenetic relationships across accessions.</p></div><div class=\"info-card gold\"><h3>GWAS Toolkit</h3><p>Genome-wide association analysis using the imputed genotype matrix and phenotypic data.</p></div></div><h2>Planned tools</h2><p>The following bioinformatics tools are planned for integration into the portal. Each tool will link to its own dedicated page once deployed.</p><ul><li>BLAST — nucleotide and protein sequence search</li><li>Synteny viewer — cross-genome synteny and collinearity</li><li>Haplotype network — visualise haplotype diversity per gene region</li><li>GWAS portal — genome-wide association study interface</li><li>Population structure viewer — PCA, admixture, and phylogenetics</li></ul><h2>External tools</h2><p>Integrated third-party tools are accessible via the Data menu. These include the SNP-Seek Genotype Viewer, JBrowse, and JBrowse2 genome browsers.</p></div>',
+  'format' => 'full_html',
+]);
+\$nt->set('path', ['alias' => '/tools']);
+\$nt->status = 1;
+\$nt->save();
+
+// ── Publications ──────────────────────────────────────────────
+\$pub_nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['title' => 'Publications']);
+\$np = !empty(\$pub_nodes) ? reset(\$pub_nodes) : \Drupal\node\Entity\Node::create(['type' => 'page', 'title' => 'Publications']);
+
+echo (empty(\$pub_nodes) ? 'Creating' : 'Updating') . ' Publications...' . PHP_EOL;
+\$np->set('body', [
+  'value' => '<div class=\"page-hero\"><div class=\"page-hero-inner\"><div class=\"page-hero-tag\"><span>Publications</span></div><h1>Publications</h1><p>Peer-reviewed research, data papers, and technical reports arising from the 1001 Philippine Rice Genome project.</p></div></div><div class=\"page-content\"><div class=\"placeholder-notice\"><div class=\"placeholder-icon\">⚠</div><div><strong>Placeholder content — this page will be updated soon.</strong><p>A curated list of project publications and citation guidelines will be added here. Please check back later.</p></div></div><h2>Project publications</h2><p>Publications directly associated with the 1001 Philippine Rice Genome project will be listed here, including the primary data paper, methodology articles, and downstream analyses.</p><h2>How to cite</h2><p>If you use data from this portal in your research, citation details will be provided here. A formal data paper describing the project, sequencing methods, and variant calling pipeline is currently in preparation.</p><h2>Related resources</h2><ul><li>SNP-Seek Database — <a href=\"https://snpseek.irri.org\" target=\"_blank\" rel=\"noopener noreferrer\">snpseek.irri.org</a></li><li>International Rice Genome Sequencing Project (IRGSP-1.0)</li><li>RAP-DB — Rice Annotation Project Database</li><li>MSU Rice Genome Annotation Project</li></ul><span class=\"badge\">Open Access</span><span class=\"badge green\">Peer-reviewed</span></div>',
+  'format' => 'full_html',
+]);
+\$np->set('path', ['alias' => '/publications']);
+\$np->status = 1;
+\$np->save();
+
+// ── About ─────────────────────────────────────────────────────
+\$about_nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['title' => 'About']);
+\$na = !empty(\$about_nodes) ? reset(\$about_nodes) : \Drupal\node\Entity\Node::create(['type' => 'page', 'title' => 'About']);
+
+echo (empty(\$about_nodes) ? 'Creating' : 'Updating') . ' About...' . PHP_EOL;
+\$na->set('body', [
+  'value' => '<div class=\"page-hero\"><div class=\"page-hero-inner\"><div class=\"page-hero-tag\"><span>About</span></div><h1>About the Portal</h1><p>Background, objectives, and the team behind the 1001 Philippine Rice Genome Portal.</p></div></div><div class=\"page-content\"><div class=\"placeholder-notice\"><div class=\"placeholder-icon\">⚠</div><div><strong>Placeholder content — this page will be updated soon.</strong><p>Detailed project background, team profiles, and funding acknowledgements are currently being compiled and will appear here.</p></div></div><h2>Project overview</h2><p>The 1001 Philippine Rice Genome Portal is a Tripal-powered bioinformatics platform developed to catalogue, manage, and share whole-genome sequencing data of rice varieties collected across the Philippine archipelago.</p><p>The project aims to document the genetic diversity of 1,001 traditional and heirloom Philippine rice varieties, providing a publicly accessible resource to support breeding programmes, conservation efforts, and food security research.</p><h2>Objectives</h2><ul><li>Generate high-quality whole-genome sequence data for 1,001 Philippine rice accessions</li><li>Identify and catalogue SNP variants, structural variants, and gene presence/absence variation</li><li>Provide open-access genomic data through an interactive web portal</li><li>Support downstream applications in plant breeding, GWAS, and conservation genomics</li></ul><h2>Partners &amp; collaborators</h2><div class=\"info-grid\"><div class=\"info-card\"><h3>University of the Philippines System</h3><p>Lead institution overseeing project coordination, data management, and portal development.</p></div><div class=\"info-card green\"><h3>IRRI — Bioinformatics Unit</h3><p>Provides bioinformatics infrastructure, sequencing support, and the SNP-Seek platform integration.</p></div><div class=\"info-card gold\"><h3>DA-PhilRice</h3><p>Contributes rice germplasm, field collection expertise, and national breeding programme linkages.</p></div></div><h2>Funding</h2><p>Funding information and acknowledgements will be added here upon publication.</p><h2>Contact</h2><p>For enquiries about data access, collaboration, or the portal, please use the <a href=\"/ph_gdb/contact\">contact page</a>.</p></div>',
+  'format' => 'full_html',
+]);
+\$na->set('path', ['alias' => '/about']);
+\$na->status = 1;
+\$na->save();
 "
 
 echo "==> Setting front page..."
