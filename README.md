@@ -249,19 +249,23 @@ docker compose exec -T web /opt/drupal/vendor/bin/drush cache:rebuild
 | Page | URL | Description |
 |---|---|---|
 | Landing page | `/ph_gdb/` | Hero, stats, about, news sections |
+| Data | `/ph_gdb/data` | Data index with links to sub-tools |
 | Genotype Viewer | `/ph_gdb/data/genotype-viewer` | Embedded SNP-Seek genotype search microservice |
 | JBrowse | `/ph_gdb/data/jbrowse` | JBrowse 1 genome browser (rice reference + MSU7 tracks) |
 | JBrowse2 | `/ph_gdb/data/jbrowse2` | JBrowse 2 next-generation genome browser |
+| Tools | `/ph_gdb/tools` | Planned bioinformatics tools index |
+| Publications | `/ph_gdb/publications` | Project publications and citation info |
+| About | `/ph_gdb/about` | Project background and partners |
 
 ### Embedded tools
 
 | Tool | Source URL |
 |---|---|
-| Genotype Viewer | `http://snpseekv3.duckdns.org/1k1/1k1_prototype.zul` |
+| Genotype Viewer | `https://snpseekv3.duckdns.org/1k1/1k1_prototype.zul` |
 | JBrowse | `https://brs-snpseek.duckdns.org/jbrowse/?loc=chr01:2902..10816&tracks=DNA,msu7gff` |
-| JBrowse2 | `https://brs-snpseek.duckdns.org/jbrowse2/?session=local-Okuh4ZhqgE-BsamEZOmCK` |
+| JBrowse2 | `https://brs-snpseek.duckdns.org/jbrowse2/?session=share-0HdpgD5_78&password=Q1KjB` |
 
-> Note: The Genotype Viewer uses `http://` — if the portal is on `https://` the browser may block the iframe due to mixed content. Configure Nginx to proxy it if needed.
+> Note: All embedded tools must use `https://` to avoid mixed-content blocking. If a tool only supports `http://`, configure Nginx to proxy it under the portal's domain.
 
 ### Admin access
 
@@ -272,6 +276,129 @@ Username: `admin` — reset password via:
 ```bash
 docker compose exec -T web /opt/drupal/vendor/bin/drush user:password admin 'your-new-password'
 ```
+
+---
+
+## Adding a New Page
+
+All portal pages are created and managed through `scripts/create-pages.sh`. This is the single source of truth for page content — the CD pipeline re-runs this script on every deploy, so changes made through the Drupal admin UI will be overwritten.
+
+### Step 1 — Add the page to `create-pages.sh`
+
+Open `scripts/create-pages.sh` and add a new block before the closing `"` of the `drush php:eval` call. Follow the pattern used by existing pages:
+
+```bash
+// ── My New Page ───────────────────────────────────────────────
+\$my_nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['title' => 'My New Page']);
+\$nm = !empty(\$my_nodes) ? reset(\$my_nodes) : \Drupal\node\Entity\Node::create(['type' => 'page', 'title' => 'My New Page']);
+
+echo (empty(\$my_nodes) ? 'Creating' : 'Updating') . ' My New Page...' . PHP_EOL;
+\$nm->set('body', [
+  'value' => '<div class=\"page-hero\">...</div><div class=\"page-content\">...</div>',
+  'format' => 'full_html',
+]);
+\$nm->set('path', ['alias' => '/my-new-page']);
+\$nm->status = 1;
+\$nm->save();
+```
+
+**Rules:**
+- The `loadByProperties` check makes it idempotent — safe to re-run without creating duplicates.
+- Set `path alias` without the `/ph_gdb/` prefix — Drupal adds that automatically. The page becomes accessible at `/ph_gdb/my-new-page`.
+- All HTML must use escaped double quotes (`\"`) since it sits inside a double-quoted PHP string.
+
+#### Available CSS building blocks
+
+The theme's `style.css` provides these ready-to-use components for page content:
+
+| Class | Purpose |
+|---|---|
+| `page-hero` > `page-hero-inner` | Full-width maroon hero banner |
+| `page-hero-tag` > `span` | Small label above the page title |
+| `page-content` | Centred content wrapper (max 1100px, padded) |
+| `info-grid` | 3-column card grid |
+| `info-card` | White card with maroon top border (add `.green` or `.gold` for variants) |
+| `placeholder-notice` | Gold dashed warning box for draft/placeholder content |
+| `badge` | Inline pill label (add `.green` or `.gold` for variants) |
+
+**Minimal page template:**
+```html
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-hero-tag"><span>Section — Subsection</span></div>
+    <h1>Page Title</h1>
+    <p>One-line description of this page.</p>
+  </div>
+</div>
+<div class="page-content">
+  <!-- your content here -->
+</div>
+```
+
+**With placeholder notice** (for pages not yet ready):
+```html
+<div class="placeholder-notice">
+  <div class="placeholder-icon">⚠</div>
+  <div>
+    <strong>Placeholder content — this page will be updated soon.</strong>
+    <p>Brief note on what will appear here.</p>
+  </div>
+</div>
+```
+
+**With embedded iframe tool:**
+```html
+<div style="width:100%;height:calc(100vh - 200px);min-height:800px;border-radius:6px;
+            overflow:hidden;border:1px solid #e4d8d8;margin:24px 0;
+            box-shadow:0 4px 20px rgba(0,0,0,0.08)">
+  <iframe src="https://your-tool-url" width="100%" height="100%"
+          frameborder="0" allowfullscreen style="display:block"></iframe>
+</div>
+```
+
+> Iframe sources must use `https://`. Mixed-content iframes are blocked by browsers when the portal is on HTTPS.
+
+---
+
+### Step 2 — Add the page to the navigation
+
+Open `web/themes/custom/phrice/templates/page.html.twig` and add a link in the `<nav class="main-nav">` block.
+
+**Top-level nav link:**
+```html
+<a href="/ph_gdb/my-new-page">My New Page</a>
+```
+
+**As a dropdown item under an existing menu** (e.g., under Data):
+```html
+<div class="nav-dropdown">
+  <a href="/ph_gdb/data" class="nav-dropdown-toggle">Data ▾</a>
+  <div class="nav-dropdown-menu">
+    <a href="/ph_gdb/data/genotype-viewer">Genotype Viewer</a>
+    <a href="/ph_gdb/data/jbrowse">JBrowse</a>
+    <a href="/ph_gdb/data/jbrowse2">JBrowse2</a>
+    <a href="/ph_gdb/data/my-new-page">My New Page</a>  <!-- add here -->
+  </div>
+</div>
+```
+
+Nav links use the full `/ph_gdb/` prefix (hardcoded) because they are absolute paths in the HTML, not generated by Drupal's URL system.
+
+---
+
+### Step 3 — Apply the changes
+
+```bash
+# Create/update the page in Drupal
+bash scripts/create-pages.sh
+
+# Rebuild cache so the updated Twig template is picked up
+docker compose exec web /opt/drupal/vendor/bin/drush cache:rebuild
+```
+
+Then hard-refresh the browser (**Ctrl+Shift+R**). The new page will be live at `/ph_gdb/my-new-page`.
+
+> On production, both steps run automatically when you push to `main` via the CD pipeline.
 
 ---
 
