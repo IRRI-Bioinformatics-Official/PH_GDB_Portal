@@ -21,6 +21,9 @@ jobs:
           git fetch origin main
           git reset --hard origin/main
 
+      - name: Ensure settings.local.php exists (no-op on production)
+        run: touch web/sites/default/settings.local.php
+
       - name: Build and restart containers
         run: docker compose up -d --build --remove-orphans
 
