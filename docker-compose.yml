@@ -29,6 +29,7 @@ services:
       - drupal_files:/opt/drupal/web/sites/default/files
       - drupal_config:/opt/drupal/config/sync
       - ./web/sites/default/settings.php:/opt/drupal/web/sites/default/settings.php:ro
+      - ./web/sites/default/settings.local.php:/opt/drupal/web/sites/default/settings.local.php:ro
       - ./web/themes:/opt/drupal/web/themes
     depends_on:
       db:
