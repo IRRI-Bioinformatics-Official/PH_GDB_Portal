@@ -37,10 +37,10 @@
         iframe.scrolling = 'no';
       } else if (e.data.type === 'scrollToOffset') {
         setTimeout(function() {
-          var iframeEl = document.querySelector('iframe[src*="snpseek"], iframe[src*="1k1"]');
+          var iframeEl = document.querySelector('iframe[src*="snpseek"], iframe[src*="1k1"], iframe[src*="genotype"]');
           if (iframeEl) {
             var iframeTop = iframeEl.getBoundingClientRect().top + window.scrollY;
-            window.scrollTo({ top: iframeTop + e.data.offset - 80, behavior: 'smooth' });
+            window.scrollTo({ top: iframeTop, behavior: 'smooth' });
           }
         }, 300);
       } else if (e.data.type === 'scrollToResults') {
