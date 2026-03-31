@@ -28,10 +28,18 @@
     iframe.style.overflow = 'hidden';
 
     window.addEventListener('message', function (e) {
-      if (e.data && e.data.type === 'resize') {
+      if (!e.data) return;
+
+      if (e.data.type === 'resize') {
         iframe.style.height = e.data.height + 'px';
         iframe.style.overflow = 'hidden';
         iframe.scrolling = 'no';
+      } else if (e.data.type === 'scrollToOffset') {
+        var iframeTop = iframe.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({ top: iframeTop + e.data.offset - 80, behavior: 'smooth' });
+      } else if (e.data.type === 'scrollToResults') {
+        var iframeTop = iframe.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({ top: iframeTop, behavior: 'smooth' });
       }
     });
   }

@@ -14,6 +14,13 @@ All operations run via `drush` inside the `web` container (`1k1_portal_web`).
 # Start/rebuild containers
 docker compose up -d --build
 
+# First-time Drupal install (after containers start for the first time)
+set -a && source .env && set +a
+docker compose exec web /opt/drupal/vendor/bin/drush site:install standard \
+  --db-url="pgsql://${TripalDB_USER}:${TripalDB_PASSWORD}@db:5432/${TripalDB_NAME}" \
+  --site-name="1001 Philippine Rice Genome Portal" \
+  --account-name=admin --account-pass=changeme --yes
+
 # Run Drush commands
 docker compose exec web /opt/drupal/vendor/bin/drush <command>
 
@@ -44,11 +51,15 @@ docker compose exec web /opt/drupal/vendor/bin/drush user:password admin "newpas
 
 - **Config as code:** All Drupal configuration lives in `config/sync/` (version-controlled). Changes made in the Drupal admin UI must be exported with `drush config:export` and committed. On deploy, `drush config:import` reapplies them.
 
-- **Page content is script-managed:** The four portal pages (Landing, Genotype Viewer, JBrowse, JBrowse2) are created/updated by `scripts/create-pages.sh` using Drush. This is the canonical way to change page content — not the Drupal UI — because the CD pipeline re-runs this script on every deploy.
+- **Page content is script-managed:** All eight portal pages (Landing, Data, Genotype Viewer, JBrowse, JBrowse2, Tools, Publications, About) are created/updated by `scripts/create-pages.sh` using Drush. This is the canonical way to change page content — not the Drupal UI — because the CD pipeline re-runs this script on every deploy. The landing page is fetched by node ID (`Node::load(1)`); all others are fetched by title via `loadByProperties`.
 
 - **Theme mounts as a live volume:** `./web/themes` is bind-mounted into the container, so CSS/JS/Twig changes are reflected without rebuilding the image. A cache rebuild (`drush cr`) is still needed for Twig and theme changes.
 
-- **External tools via iframes:** Genotype Viewer (SNP-Seek), JBrowse, and JBrowse2 are embedded as iframes. Their URLs are hardcoded in `scripts/create-pages.sh`. The Genotype Viewer must use HTTPS to avoid mixed-content blocking from the HTTPS portal.
+- **External tools via iframes:** Genotype Viewer (SNP-Seek), JBrowse, and JBrowse2 are embedded as iframes. Their URLs are hardcoded in `scripts/create-pages.sh`. All iframe sources must use `https://` to avoid mixed-content blocking.
+
+- **Named Docker volumes:** `drupal_files` (uploaded files) and `drupal_config` (Drupal config sync path inside the container) persist across `docker compose down`/`up`. The `drupal_config` volume is separate from `config/sync/` in the repo — export with `drush config:export` + `docker cp` to persist config to git.
+
+- **Nginx `sub_filter` rewrites asset paths** for the `/ph_gdb/` subdirectory. Avoid using `clip-path` in CSS — the Nginx `sub_filter` may incorrectly rewrite its URL arguments.
 
 ## Theme: `phrice`
 
@@ -77,6 +88,38 @@ Copy `.env.example` to `.env` before starting. Required variables:
 - **CD (`cd.yml`):** Runs on push to `main`. Uses a self-hosted runner on the production EC2 instance (`BRS_tripal`). Does `git reset --hard origin/main` (not a normal pull), rebuilds containers, runs Drush updates, re-runs `create-pages.sh`, and rebuilds cache.
 
 Production `.env` is stored at `/home/ec2-user/.env.phgdb` on the server and copied during deploy — it is never in git.
+
+## Adding a New Page
+
+1. **Add a block to `scripts/create-pages.sh`** before the closing `"` of the `drush php:eval` call, following the idempotent pattern:
+
+```php
+\$my_nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['title' => 'My New Page']);
+\$nm = !empty(\$my_nodes) ? reset(\$my_nodes) : \Drupal\node\Entity\Node::create(['type' => 'page', 'title' => 'My New Page']);
+echo (empty(\$my_nodes) ? 'Creating' : 'Updating') . ' My New Page...' . PHP_EOL;
+\$nm->set('body', ['value' => '<div class=\"page-hero\">...</div><div class=\"page-content\">...</div>', 'format' => 'full_html']);
+\$nm->set('path', ['alias' => '/my-new-page']);
+\$nm->status = 1;
+\$nm->save();
+```
+
+Path aliases omit the `/ph_gdb/` prefix — Drupal adds it automatically. All HTML double quotes must be escaped as `\"` (they live inside a double-quoted shell string).
+
+2. **Add a nav link** in `web/themes/custom/phrice/templates/page.html.twig` inside `<nav class="main-nav">`. Nav links use the full `/ph_gdb/` prefix (hardcoded absolute paths).
+
+3. **Apply:** `bash scripts/create-pages.sh && docker compose exec web drush cache:rebuild`
+
+### Available CSS building blocks (from `style.css`)
+
+| Class | Purpose |
+|---|---|
+| `page-hero` > `page-hero-inner` | Full-width maroon hero banner |
+| `page-hero-tag` > `span` | Small label above the page title |
+| `page-content` | Centred content wrapper (max 1100px, padded) |
+| `info-grid` | 3-column card grid |
+| `info-card` | White card with maroon top border (`.green` or `.gold` variants) |
+| `placeholder-notice` | Gold dashed warning box for draft content |
+| `badge` | Inline pill label (`.green` or `.gold` variants) |
 
 ## Local Development Notes
 
