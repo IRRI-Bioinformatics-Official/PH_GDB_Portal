@@ -20,5 +20,22 @@
     }, 300);
   }
 
+  function initSnpSeekResize() {
+    const iframe = document.getElementById('snpseek-iframe');
+    if (!iframe) return;
+
+    iframe.scrolling = 'no';
+    iframe.style.overflow = 'hidden';
+
+    window.addEventListener('message', function (e) {
+      if (e.data && e.data.type === 'resize') {
+        iframe.style.height = e.data.height + 'px';
+        iframe.style.overflow = 'hidden';
+        iframe.scrolling = 'no';
+      }
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', initGenomeGrid);
+  document.addEventListener('DOMContentLoaded', initSnpSeekResize);
 })();
