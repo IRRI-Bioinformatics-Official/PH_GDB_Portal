@@ -46,6 +46,15 @@
       } else if (e.data.type === 'scrollToResults') {
         var iframeTop = iframe.getBoundingClientRect().top + window.pageYOffset;
         window.scrollTo({ top: iframeTop, behavior: 'smooth' });
+      } else if (e.data.type === 'resultsReady') {
+        setTimeout(function() {
+          var iframeEl = document.querySelector('iframe[src*="snpseek"], iframe[src*="genotype"], iframe[src*="1k1"]');
+          if (iframeEl) {
+            var navbarHeight = document.querySelector('nav, header, .navbar')?.offsetHeight || 80;
+            var iframeTop = iframeEl.getBoundingClientRect().top + window.scrollY;
+            window.scrollTo({ top: iframeTop - navbarHeight, behavior: 'smooth' });
+          }
+        }, 200);
       }
     });
   }
